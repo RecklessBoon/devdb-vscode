@@ -94,6 +94,10 @@ async function selectProvider(providerId: string): Promise<boolean> {
 		return false
 	}
 
+	if (database.boot) {
+		await database.boot()
+	}
+
 	return true
 }
 
@@ -110,6 +114,10 @@ async function selectProviderOption(option: EngineProviderOption): Promise<boole
 	if (!database) {
 		vscode.window.showErrorMessage(`Provider option error: Could not get database engine for ${option.provider}`)
 		return false
+	}
+
+	if (database.boot) {
+		await database.boot()
 	}
 
 	return true

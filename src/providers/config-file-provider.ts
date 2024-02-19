@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 import { DatabaseEngine, DatabaseEngineProvider, EngineProviderCache, EngineProviderOption, MysqlConfig, PostgresConfig, SqliteConfig } from '../types';
-import { SqliteEngine } from '../database-engines/sqlite-engine';
 import { getConfigFileContent } from '../services/config-service';
 import { brief } from '../services/string';
 import { MysqlEngine } from '../database-engines/mysql-engine';
 import { getConnectionFor } from '../services/sequelize-connector';
 import { PostgresEngine } from '../database-engines/postgres-engine';
+import { SqliteJsEngine } from '../database-engines/sqlite.js-engine';
 
 export const ConfigFileProvider: DatabaseEngineProvider = {
 	name: 'Config File',
@@ -67,14 +67,19 @@ export const ConfigFileProvider: DatabaseEngineProvider = {
 			this.engine = matchedOption.engine
 		}
 
+		if (this.engine?.boot) {
+			await this.engine.boot()
+		}
+
 		return this.engine
 	}
 }
 
 async function sqliteConfigResolver(sqliteConnection: SqliteConfig): Promise<EngineProviderCache | undefined> {
-	const engine: SqliteEngine = new SqliteEngine(sqliteConnection.path)
+	const engine: SqliteJsEngine = new SqliteJsEngine(sqliteConnection.path)
+	await engine.boot()
 	const isOkay = (await engine.isOkay())
-	if (!isOkay || !engine.sequelize) {
+	if (!isOkay || !engine.getDatabase()) {
 		await vscode.window.showErrorMessage('The SQLite database specified in your config file is not valid.')
 		return
 	} else {

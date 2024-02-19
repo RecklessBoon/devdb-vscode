@@ -2,8 +2,8 @@ import * as vscode from 'vscode';
 import { join } from 'path';
 import { DotenvParseOutput, parse } from 'dotenv';
 import { DatabaseEngine, DatabaseEngineProvider } from '../../types';
-import { SqliteEngine } from '../../database-engines/sqlite-engine';
 import { fileExists, getFirstWorkspacePath, getWorkspaceFileContent } from '../../services/workspace';
+import { SqliteJsEngine } from '../../database-engines/sqlite.js-engine';
 
 export const LaravelLocalSqliteProvider: DatabaseEngineProvider = {
 	name: 'Laravel Local SQLite (default)',
@@ -26,7 +26,8 @@ export const LaravelLocalSqliteProvider: DatabaseEngineProvider = {
 		const sqliteFilePath = await getSqliteFilePath(configContent.toString(), env)
 
 		try {
-			this.engine = new SqliteEngine(sqliteFilePath);
+			this.engine = new SqliteJsEngine(sqliteFilePath);
+			if (this.engine.boot) await this.engine.boot()
 		} catch (error) {
 			vscode.window.showErrorMessage(`SQLite file error ${sqliteFilePath}: ${String(error)}`)
 			return false

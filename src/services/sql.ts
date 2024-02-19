@@ -1,5 +1,5 @@
 import { Dialect, QueryTypes, Sequelize } from "sequelize";
-import { QueryResponse } from "../types";
+import { QueryResponse, QueryRunner } from "../types";
 import { reportError } from "./initialization-error-service";
 
 export const SqlService = {
@@ -22,8 +22,8 @@ export const SqlService = {
 		return { where, replacements }
 	},
 
-	async getRows(dialect: Dialect, sequelize: Sequelize | null, table: string, limit: number, offset: number, whereClause?: Record<string, any>): Promise<QueryResponse | undefined> {
-		if (!sequelize) return;
+	async getRows(dialect: Dialect, runner: QueryRunner | Sequelize | null, table: string, limit: number, offset: number, whereClause?: Record<string, any>): Promise<QueryResponse | undefined> {
+		if (!runner) return;
 
 		let delimiter = '`'
 		if (dialect === 'postgres') {
@@ -40,12 +40,12 @@ export const SqlService = {
 		let rows
 
 		try {
-			rows = await sequelize.query(
+			rows = await runner.query(
 				`SELECT * FROM ${delimiter}${table}${delimiter} ${whereString} ${limitConstraint}`, {
 				type: QueryTypes.SELECT,
 				raw: true,
 				replacements,
-				logging: query => { sql = query }
+				logging: (query: any) => { sql = query }
 			});
 		} catch (error) {
 			reportError(String(error));
@@ -55,8 +55,8 @@ export const SqlService = {
 		return { rows, sql };
 	},
 
-	async getTotalRows(dialect: Dialect, sequelize: Sequelize | null, table: string, whereClause?: Record<string, any>): Promise<number | undefined> {
-		if (!sequelize) return;
+	async getTotalRows(dialect: Dialect, runner: QueryRunner | Sequelize | null, table: string, whereClause?: Record<string, any>): Promise<number | undefined> {
+		if (!runner) return;
 
 		let delimiter = '`'
 		if (dialect === 'postgres') {
@@ -68,7 +68,7 @@ export const SqlService = {
 		let count;
 
 		try {
-			count = await sequelize.query(`SELECT COUNT(*) FROM ${delimiter}${table}${delimiter} ${whereString}`, {
+			count = await runner.query(`SELECT COUNT(*) FROM ${delimiter}${table}${delimiter} ${whereString}`, {
 				type: QueryTypes.SELECT,
 				raw: true,
 				replacements,

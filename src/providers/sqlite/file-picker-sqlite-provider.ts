@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { DatabaseEngine, DatabaseEngineProvider } from "../../types";
 import { addSqlDatabaseToConfig } from '../../services/config-service';
-import { SqliteEngine } from '../../database-engines/sqlite-engine';
+import { SqliteJsEngine } from '../../database-engines/sqlite.js-engine';
 
 export const FilePickerSqliteProvider: DatabaseEngineProvider = {
 	name: 'SQLite Database File Picker',
@@ -21,7 +21,8 @@ export const FilePickerSqliteProvider: DatabaseEngineProvider = {
 			return
 		}
 
-		this.engine = new SqliteEngine(filePath);
+		this.engine = new SqliteJsEngine(filePath);
+		if (this.engine?.boot) await this.engine.boot()
 
 		let isOkay = false;
 		try {
