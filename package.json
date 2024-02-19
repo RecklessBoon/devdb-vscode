@@ -127,6 +127,7 @@
 		"@types/mocha": "^10.0.2",
 		"@types/node": "^18.18.5",
 		"@types/pluralize": "^0.0.33",
+		"@types/sql.js": "^1.4.9",
 		"@types/vscode": "^1.83.0",
 		"@typescript-eslint/eslint-plugin": "^6.7.3",
 		"@typescript-eslint/parser": "^6.7.3",
@@ -151,6 +152,7 @@
 		"pluralize": "^8.0.0",
 		"sequelize": "^6.33.0",
 		"sql-formatter": "^13.1.0",
+		"sql.js": "^1.10.2",
 		"sqlite3": "^5.1.7",
 		"yaml": "^2.3.3"
 	},

@@ -1,6 +1,7 @@
-import { Dialect } from "sequelize"
+import { Dialect, QueryTypes } from "sequelize"
 import { MysqlEngine } from "./database-engines/mysql-engine"
 import { PaginationData } from "./services/pagination"
+import { SqliteJsEngine } from "./database-engines/sqlite.js-engine"
 
 export type ConnectionType = 'laravel-sail' | 'laravel-local-sqlite'
 
@@ -26,7 +27,7 @@ export type EngineProviderCache = {
 	id: string,
 	description: string,
 	details?: string,
-	engine: MysqlEngine,
+	engine: MysqlEngine | SqliteJsEngine,
 }
 
 export type DatabaseEngineProvider = {
@@ -51,6 +52,8 @@ export type DatabaseEngineProvider = {
 }
 
 export interface DatabaseEngine {
+	boot?: () => Promise<void> | void | undefined
+
 	/**
 	 * Returns true if the connection is okay
 	 */
@@ -74,7 +77,7 @@ export interface DatabaseEngine {
 }
 
 export type QueryResponse = {
-	rows: any[]
+	rows: Record<string, any>[]
 	sql?: string
 }
 
@@ -123,3 +126,12 @@ export interface PostgresConfig extends SqlConfig {
 }
 
 export type LaravelConnection = 'pgsql' | 'mysql'
+
+export type QueryRunner = {
+	query: (query: string, config: {
+		type: QueryTypes.SELECT | null,
+		raw: boolean,
+		replacements: string[],
+		logging?: any
+	}) => Promise<any>
+}
